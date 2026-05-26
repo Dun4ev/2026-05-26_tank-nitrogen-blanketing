@@ -2,7 +2,7 @@
 
 > **Имя репозитория на GitHub:** `tank-nitrogen-blanketing`  
 > **Адрес репозитория:** [github.com/Dun4ev/tank-nitrogen-blanketing](https://github.com/Dun4ev/tank-nitrogen-blanketing)  
-> **Интерактивный инструмент (GitHub Pages):** [Dun4ev.github.io/tank-nitrogen-blanketing](https://Dun4ev.github.io/tank-nitrogen-blanketing/) (после публикации калькулятор ТЭО и шкала давлений будут доступны онлайн как интерактивная веб-страница).
+> **Интерактивный инструмент (GitHub Pages):** [Dun4ev.github.io/tank-nitrogen-blanketing](https://Dun4ev.github.io/tank-nitrogen-blanketing/) (после публикации калькулятор ТЭО, шкала давлений и аналитический отчет доступны онлайн как интерактивная веб-страница).
 
 Репозиторий содержит материалы исследования, технико-экономического обоснования (ТЭО) и расчетов систем азотного дыхания (азотной подушки / tank blanketing) для резервуаров хранения нефтепродуктов (бензин, сырая нефть, керосин, дизельное топливо).
 
@@ -43,5 +43,5 @@
 
 ## 📂 Структура репозитория
 
-*   [`deep-research-report.md`](file:///d:/OneDrive%20-%20CT%20DOO/work%20CT_tender/2026-05-26%20%D0%B0%D0%B7%D0%BE%D1%82%D0%BD%D0%B0%D1%8F%20%D0%BF%D0%BE%D0%B4%D1%83%D1%88%D0%BA%D0%B0%20%D0%B2%20%D1%80%D0%B5%D0%B7%D0%B5%D1%80%D0%B2%D1%83%D0%B0%D1%80%D0%B0%D1%85/deep-research-report.md) — подробный аналитический отчет с выводами, формулами и ссылками на стандарты.
-*   [`index.html`](file:///d:/OneDrive%20-%20CT%20DOO/work%20CT_tender/2026-05-26%20%D0%B0%D0%B7%D0%BE%D1%82%D0%BD%D0%B0%D1%8F%20%D0%BF%D0%BE%D0%B4%D1%83%D1%88%D0%BA%D0%B0%20%D0%B2%20%D1%80%D0%B5%D0%B7%D0%B5%D1%80%D0%B2%D1%83%D0%B0%D1%80%D0%B0%D1%85/index.html) — интерактивный ТЭО-калькулятор и схема системы (автоматически развертывается на GitHub Pages).
+*   [`deep-research-report.md`](deep-research-report.md) — подробный аналитический отчет с выводами, формулами и ссылками на стандарты.
+*   [`index.html`](index.html) — интерактивный ТЭО-калькулятор, схема системы и детальный отчет (автоматически развертывается на GitHub Pages).
