@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Азотное бланкетирование резервуаров (РВС) - Технический Анализ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="border-b border-slate-850 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                </span>
+                <div>
+                    <span class="text-xs text-emerald-400 font-semibold tracking-wider uppercase block">Инженерный аудит по стандартам EPA и API</span>
+                    <span class="font-bold text-lg text-white">Азотная подушка: физика процесса и ТЭО</span>
+                </div>
+            </div>
+            <div class="text-sm text-slate-400 font-mono hidden md:block">
+                Ревизия проекта: Май 2026
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap gap-2 border-b border-slate-850 pb-4 mb-8">
+            <button onclick="switchTab('concept')" id="btn-concept" class="tab-btn px-4 py-2 text-sm font-medium rounded-lg transition-all bg-emerald-500 text-white shadow-lg shadow-emerald-500/10">
+                1. Физика процесса
+            </button>
+            <button onclick="switchTab('limits')" id="btn-limits" class="tab-btn px-4 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white hover:bg-slate-850">
+                2. Границы давления
+            </button>
+            <button onclick="switchTab('schema')" id="btn-schema" class="tab-btn px-4 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white hover:bg-slate-850">
+                3. Интерактивная схема
+            </button>
+            <button onclick="switchTab('products')" id="btn-products" class="tab-btn px-4 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white hover:bg-slate-850">
+                4. Сравнение продуктов
+            </button>
+            <button onclick="switchTab('checklist')" id="btn-checklist" class="tab-btn px-4 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white hover:bg-slate-850">
+                5. Опросный лист
+            </button>
+            <button onclick="switchTab('calculator')" id="btn-calculator" class="tab-btn px-4 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white hover:bg-slate-850">
+                6. ТЭО Калькулятор
+            </button>
+            <button onclick="switchTab('safety')" id="btn-safety" class="tab-btn px-4 py-2 text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-white hover:bg-slate-850">
+                7. Безопасность и стандарты
+            </button>
+        </div>
+
+        <!-- TAB 1: CONCEPT -->
+        <div id="tab-concept" class="tab-content active space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Left Main Card -->
+                <div class="lg:col-span-2 bg-slate-900/50 border border-slate-850 rounded-2xl p-6 lg:p-8 space-y-6">
+                    <h2 class="text-2xl font-bold text-white">Разрушение мифов: Как на самом деле работает азот на РВС</h2>
+                    <p class="text-slate-300 leading-relaxed text-base">
+                        Азотное бланкетирование (создание избыточного давления азота в надгробном пространстве резервуара) действительно сокращает потери от испарения легких углеводородов. Однако физика процесса отличается от того, как ее часто представляют.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-5 bg-slate-950/60 rounded-xl border border-rose-500/20 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 h-1 w-full bg-rose-500"></div>
+                            <span class="text-xs text-rose-400 font-mono uppercase block mb-1">Заблуждение</span>
+                            <h4 class="font-bold text-white mb-2">«Давление в 1 бар защитит от кипения»</h4>
+                            <p class="text-sm text-slate-400">Стандартный наземный резервуар типа РВС рассчитан на избыточное давление всего в <b>20 миллибар</b> (0.02 бар). Попытка закачать туда 1 бар приведет к мгновенному отрыву крыши по шву.</p>
+                        </div>
+
+                        <div class="p-5 bg-slate-950/60 rounded-xl border border-emerald-500/20 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 h-1 w-full bg-emerald-500"></div>
+                            <span class="text-xs text-emerald-400 font-mono uppercase block mb-1">Реальность</span>
+                            <h4 class="font-bold text-white mb-2">Микродавление и герметизация</h4>
+                            <p class="text-sm text-slate-400">Азот подается под давлением от <b>2 до 15 мбар</b>. Этого достаточно, чтобы запереть пары внутри, вытеснить кислород и предотвратить контакт продукта с влагой воздуха.</p>
+                        </div>
+
+                        <div class="p-5 bg-slate-950/60 rounded-xl border border-rose-500/20 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 h-1 w-full bg-rose-500"></div>
+                            <span class="text-xs text-rose-400 font-mono uppercase block mb-1">Заблуждение</span>
+                            <h4 class="font-bold text-white mb-2">«Азот охлаждает емкость от солнца»</h4>
+                            <p class="text-sm text-slate-400">Газовый азот не обладает охлаждающими свойствами. Резервуар под солнцем нагревается точно так же, нагревая продукт и повышая давление паров.</p>
+                        </div>
+
+                        <div class="p-5 bg-slate-950/60 rounded-xl border border-emerald-500/20 relative overflow-hidden">
+                            <div class="absolute top-0 left-0 h-1 w-full bg-emerald-500"></div>
+                            <span class="text-xs text-emerald-400 font-mono uppercase block mb-1">Реальность</span>
+                            <h4 class="font-bold text-white mb-2">Ликвидация дыхания резервуара</h4>
+                            <p class="text-sm text-slate-400">Азот исключает «малые дыхания» (выброс паров при нагреве днем и всос влажного кислорода ночью) и исключает риск взрыва паров бензина.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Quick Stats Card -->
+                <div class="bg-slate-900/30 border border-slate-850 rounded-2xl p-6 flex flex-col justify-between space-y-6">
+                    <div>
+                        <h3 class="font-bold text-white text-lg mb-4">Основные факторы потерь</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-3">
+                                <span class="p-1.5 bg-amber-500/10 text-amber-400 rounded-md mt-0.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                </span>
+                                <div>
+                                    <h5 class="text-sm font-semibold text-slate-200">Малые дыхания (температурные)</h5>
+                                    <p class="text-xs text-slate-400 mt-0.5">Суточные колебания температур вызывают постоянный выброс обогащенного бензиновыми фракциями газа наружу.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-3">
+                                <span class="p-1.5 bg-amber-500/10 text-amber-400 rounded-md mt-0.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                </span>
+                                <div>
+                                    <h5 class="text-sm font-semibold text-slate-200">Большие дыхания (рабочие)</h5>
+                                    <p class="text-xs text-slate-400 mt-0.5">При наливе топлива в резервуар, газовый объем, насыщенный парами бензина, принудительно вытесняется в атмосферу.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-850">
+                        <span class="text-xs text-slate-400 uppercase font-mono block mb-1">Максимальный эффект</span>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-4xl font-extrabold text-emerald-400">до 95%</span>
+                            <span class="text-sm text-slate-300">сокращения потерь паров</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">Эффективность зависит от наличия закрытой обвязки улавливания паров или правильной настройки дыхательной арматуры.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TAB 2: LIMITS -->
+        <div id="tab-limits" class="tab-content space-y-6">
+            <div class="bg-slate-900/50 border border-slate-850 rounded-2xl p-6 lg:p-8 space-y-6">
+                <div class="max-w-3xl">
+                    <h2 class="text-2xl font-bold text-white mb-2">Шкала прочности: Почему «1 бар» разрушит РВС</h2>
+                    <p class="text-slate-300 text-sm">
+                        Большинство атмосферных резервуаров проектируются по стандарту API 650. Их механическая прочность ограничена тонкой стальной стенкой и огромным диаметром крыши. Ниже приведена визуализация давлений по стандартам проектирования.
+                    </p>
+                </div>
+
+                <!-- Interactive Gauge/Bar -->
+                <div class="space-y-8 py-4">
+                    <div class="relative pt-1">
+                        <div class="flex mb-2 items-center justify-between text-xs">
+                            <span class="font-semibold inline-block py-1 px-2 uppercase rounded-full text-emerald-400 bg-emerald-500/10">0 - 20 мбар (РВС)</span>
+                            <span class="font-semibold inline-block py-1 px-2 uppercase rounded-full text-amber-400 bg-amber-500/10">До 172 мбар (API 650)</span>
+                            <span class="font-semibold inline-block py-1 px-2 uppercase rounded-full text-rose-400 bg-rose-500/10">1000 мбар / 1 бар (Разрушение РВС!)</span>
+                        </div>
+                        <div class="overflow-hidden h-6 text-xs flex rounded-full bg-slate-800">
+                            <div style="width: 15%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-emerald-500">
+                                <span class="text-[10px] font-bold">РВС Рабочая зона</span>
+                            </div>
+                            <div style="width: 35%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-amber-500">
+                                <span class="text-[10px] font-bold">Предел API 650</span>
+                            </div>
+                            <div style="width: 50%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-rose-500">
+                                <span class="text-[10px] font-bold">Опасная зона (Танк разорвет!)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="p-5 bg-slate-950/40 rounded-xl border border-emerald-500/20">
+                            <h4 class="font-bold text-emerald-400 mb-2">Атмосферный класс (API 650)</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Рассчитан на внутреннее давление, близкое к атмосферному (обычно до 20 мбар). Азотное бланкетирование настраивается на уставку 2-8 мбар. Это защищает от подсоса воздуха и исключает горение.
+                            </p>
+                        </div>
+                        <div class="p-5 bg-slate-950/40 rounded-xl border border-amber-500/20">
+                            <h4 class="font-bold text-amber-400 mb-2">Низконапорный класс (API 620)</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Допускает избыточное давление до 1034 мбар (15 psig). Только в таких специальных резервуарах можно использовать повышенный подпор для снижения испарения без риска разрушения конструкции.
+                            </p>
+                        </div>
+                        <div class="p-5 bg-slate-950/40 rounded-xl border border-rose-500/20">
+                            <h4 class="font-bold text-rose-400 mb-2">Миф об «1 баре»</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Подача избыточного давления в 1 бар (1000 мбар) на стандартный РВС приведет к немедленному отрыву крыши по слабому шву (frangible roof joint). Это защитная мера, предотвращающая разрушение фундамента и стен емкости.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: SCHEMA -->
+        <div id="tab-schema" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Interactive SVG Scheme -->
+                <div class="lg:col-span-2 bg-slate-900/50 border border-slate-850 rounded-2xl p-6 flex flex-col items-center justify-center relative min-h-[400px]">
+                    <h3 class="text-lg font-bold text-white mb-6 self-start">Технологическая схема подключения оборудования</h3>
+                    
+                    <svg class="w-full max-w-lg" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Ground line -->
+                        <line x1="50" y1="350" x2="550" y2="350" stroke="#334155" stroke-width="4" stroke-linecap="round" />
+                        
+                        <!-- Reservoir main body -->
+                        <rect x="150" y="120" width="300" height="230" rx="10" fill="#1e293b" stroke="#475569" stroke-width="4" />
+                        
+                        <!-- Roof dome -->
+                        <path d="M150 120 C 150 120, 300 80, 450 120" fill="#1e293b" stroke="#475569" stroke-width="4" />
+
+                        <!-- Floating Level (Product) -->
+                        <rect x="154" y="200" width="292" height="146" fill="#022c22" opacity="0.8" />
+                        <line x1="154" y1="200" x2="446" y2="200" stroke="#10b981" stroke-width="3" stroke-dasharray="4 4" />
+                        <text x="300" y="270" fill="#059669" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">НЕФТЕПРОДУКТ (БЕНЗИН / ДИЗЕЛЬ)</text>
+
+                        <!-- Gas/Nitrogen Space -->
+                        <text x="300" y="150" fill="#38bdf8" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">АЗОТНАЯ ПОДУШКА (N₂)</text>
+                        <text x="300" y="170" fill="#0ea5e9" font-family="sans-serif" font-size="11" text-anchor="middle">Давление: 2 - 15 мбар. Кислород &lt; 5%</text>
+
+                        <!-- Nitrogen Supply Pipeline -->
+                        <path d="M 50 250 L 100 250 L 100 100 L 220 100 L 220 110" stroke="#0ea5e9" stroke-width="3" fill="none" />
+                        <!-- Nitrogen Control Valve -->
+                        <rect x="195" y="85" width="50" height="30" rx="4" fill="#0ea5e9" stroke="#38bdf8" stroke-width="2" class="cursor-pointer" onclick="showInfo('valven2')" />
+                        <text x="220" y="103" fill="#ffffff" font-family="sans-serif" font-size="9" font-weight="bold" text-anchor="middle">PCV-1</text>
+                        <text x="145" y="80" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="bold">Подача N₂</text>
+
+                        <!-- Breathing / Vapor Valve -->
+                        <rect x="350" y="80" width="60" height="35" rx="4" fill="#ef4444" stroke="#f87171" stroke-width="2" class="cursor-pointer" onclick="showInfo('valvebreath')" />
+                        <path d="M 380 80 L 380 60 L 420 60" stroke="#ef4444" stroke-width="3" fill="none" />
+                        <text x="380" y="97" fill="#ffffff" font-family="sans-serif" font-size="9" font-weight="bold" text-anchor="middle">PVRV-1</text>
+                        <text x="415" y="50" fill="#f87171" font-family="sans-serif" font-size="11" font-weight="bold">В атмосферу / УЛФ</text>
+
+                        <!-- Nitrogen Generator Unit -->
+                        <rect x="30" y="235" width="40" height="50" rx="4" fill="#0284c7" stroke="#38bdf8" stroke-width="2" class="cursor-pointer" onclick="showInfo('generator')" />
+                        <text x="50" y="265" fill="#ffffff" font-family="sans-serif" font-size="10" font-weight="bold" text-anchor="middle">N₂ Gen</text>
+
+                        <!-- Oxygen Sensor -->
+                        <circle cx="280" cy="110" r="10" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2" class="cursor-pointer" onclick="showInfo('sensor')" />
+                        <text x="280" y="113" fill="#0f172a" font-family="sans-serif" font-size="8" font-weight="bold" text-anchor="middle">O₂</text>
+                    </svg>
+
+                    <p class="text-xs text-slate-400 mt-4 text-center">Кликните на элементы схемы (PCV-1, PVRV-1, N₂ Gen, O₂), чтобы увидеть детальное описание их роли.</p>
+                </div>
+
+                <!-- Info Block for SVG -->
+                <div class="bg-slate-900/30 border border-slate-850 rounded-2xl p-6 flex flex-col justify-between">
+                    <div id="info-card-default">
+                        <h4 class="font-bold text-white text-lg mb-2">Описание элементов системы</h4>
+                        <p class="text-sm text-slate-400">Выберите элемент на интерактивной схеме слева для просмотра технических параметров и его назначения в процессе модернизации резервуара.</p>
+                    </div>
+
+                    <div id="info-card-detail" class="hidden space-y-4">
+                        <div class="flex items-center space-x-2">
+                            <span id="info-tag" class="text-xs px-2 py-1 rounded font-mono uppercase font-bold"></span>
+                            <h4 id="info-title" class="font-bold text-white text-lg"></h4>
+                        </div>
+                        <p id="info-desc" class="text-sm text-slate-300"></p>
+                        <div class="p-4 bg-slate-950/60 rounded-xl border border-slate-850">
+                            <span class="text-xs text-slate-400 font-mono block">Критический параметр для существующего РВС:</span>
+                            <p id="info-param" class="text-xs text-amber-400 mt-1 font-semibold"></p>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-850 mt-6">
+                        <h5 class="text-xs text-slate-400 font-mono uppercase mb-2">Типичные настройки давления:</h5>
+                        <ul class="text-xs text-slate-300 space-y-1">
+                            <li class="flex justify-between"><span>Подача азота (PCV-1 открывается):</span> <span class="text-emerald-400 font-semibold">&lt; 2.0 мбар</span></li>
+                            <li class="flex justify-between"><span>Нормальное состояние системы:</span> <span class="text-sky-400 font-semibold">5.0 - 8.0 мбар</span></li>
+                            <li class="flex justify-between"><span>Дыхательный клапан (Выброс газа):</span> <span class="text-rose-400 font-semibold">&gt; 15.0 мбар</span></li>
+                            <li class="flex justify-between"><span>Вакуумный клапан (Впуск воздуха при аварии):</span> <span class="text-red-500 font-semibold">&lt; -2.5 мбар</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: PRODUCTS -->
+        <div id="tab-products" class="tab-content space-y-6">
+            <div class="bg-slate-900/50 border border-slate-850 rounded-2xl p-6 lg:p-8 space-y-6">
+                <div class="max-w-3xl">
+                    <h2 class="text-2xl font-bold text-white mb-2">Давление насыщенных паров (ДНП) продуктов</h2>
+                    <p class="text-slate-300 text-sm">
+                        Испаряемость — это прямое следствие давления паров нефтепродукта при текущей температуре. График наглядно показывает, почему азотное бланкетирование экономит тонны бензина, но практически бесполезно для сокращения потерь дизельного топлива.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-slate-950/40 p-6 rounded-xl border border-slate-800">
+                        <canvas id="vaporPressureChart" class="w-full h-80"></canvas>
+                    </div>
+
+                    <div class="space-y-4 flex flex-col justify-between">
+                        <div class="p-4 bg-slate-950/40 rounded-xl border border-slate-850">
+                            <span class="text-xs text-emerald-400 font-mono uppercase block mb-1">Бензин (ДНП 30-90 кПа)</span>
+                            <p class="text-xs text-slate-300">
+                                Крайне высокая волатильность. Пары бензина легко заполняют все газовое пространство РВС и выталкиваются наружу при малейшем нагреве. Азот и жесткий контроль давления здесь критически необходимы.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-slate-950/40 rounded-xl border border-slate-850">
+                            <span class="text-xs text-amber-400 font-mono uppercase block mb-1">Керосин / Jet A-1 (ДНП 1-3.7 кПа)</span>
+                            <p class="text-xs text-slate-300">
+                                Умеренная волатильность. Потери от испарения выражены слабо. Азот применяется здесь не для экономии топлива, а для вытеснения влаги (конденсат губителен для авиадвигателей) и исключения статического взрыва.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-slate-950/40 rounded-xl border border-slate-850">
+                            <span class="text-xs text-rose-400 font-mono uppercase block mb-1">Дизель (ДНП 0.4 кПа)</span>
+                            <p class="text-xs text-slate-300">
+                                Чрезвычайно низкая волатильность при любых рабочих температурах. Испарения стремятся к нулю. Бланкетирование дизельных РВС обосновывается исключительно защитой от окисления и биологического обрастания.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: CHECKLIST -->
+        <div id="tab-checklist" class="tab-content space-y-6">
+            <div class="bg-slate-900/50 border border-slate-850 rounded-2xl p-6 lg:p-8 space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Вопросы к технической команде объекта</h2>
+                        <p class="text-sm text-slate-400 mt-1">Изучите и соберите эти данные перед принятием решения о закупках.</p>
+                    </div>
+                    <span class="text-xs bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full font-mono">Важно</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Section 1 -->
+                    <div class="p-5 bg-slate-950/60 rounded-xl border border-slate-850 space-y-4">
+                        <div class="flex items-center space-x-2 text-sky-400">
+                            <span class="p-1.5 bg-sky-500/10 rounded-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.907c.961 0 1.36 1.252.586 1.802l-3.974 2.886a1 1 0 00-.364 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.886a1 1 0 00-1.176 0l-3.976 2.886c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.364-1.118L2.98 9.42c-.775-.55-.375-1.802.586-1.802h4.907a1 1 0 00.95-.69l1.519-4.674z"/></svg>
+                            </span>
+                            <h4 class="font-bold text-white">Механические пределы</h4>
+                        </div>
+                        <p class="text-xs text-slate-400">Каковы паспортные величины допустимого избыточного давления и вакуума для каждого РВС на объекте?</p>
+                        <div class="p-3 bg-slate-900/40 rounded-lg text-xs text-slate-500">
+                            <b>Зачем:</b> Исключает риск схлопывания или разрыва стенок резервуара при первой же закачке продукта.
+                        </div>
+                    </div>
+
+                    <!-- Section 2 -->
+                    <div class="p-5 bg-slate-950/60 rounded-xl border border-slate-850 space-y-4">
+                        <div class="flex items-center space-x-2 text-emerald-400">
+                            <span class="p-1.5 bg-emerald-500/10 rounded-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </span>
+                            <h4 class="font-bold text-white">Технологические расходы</h4>
+                        </div>
+                        <p class="text-xs text-slate-400">Какова максимальная производительность насосов при закачке и выдаче продукта (м³/ч)?</p>
+                        <div class="p-3 bg-slate-900/40 rounded-lg text-xs text-slate-500">
+                            <b>Зачем:</b> По стандартам API 2000 расход азота должен мгновенно компенсировать объем уходящего продукта при пиковом откачивании.
+                        </div>
+                    </div>
+
+                    <!-- Section 3 -->
+                    <div class="p-5 bg-slate-950/60 rounded-xl border border-slate-850 space-y-4">
+                        <div class="flex items-center space-x-2 text-purple-400">
+                            <span class="p-1.5 bg-purple-500/10 rounded-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                            </span>
+                            <h4 class="font-bold text-white">Параметры продукта</h4>
+                        </div>
+                        <p class="text-xs text-slate-400">Какое максимальное давление насыщенных паров (ДНП) у хранимого топлива при температуре +40°C?</p>
+                        <div class="p-3 bg-slate-900/40 rounded-lg text-xs text-slate-500">
+                            <b>Зачем:</b> Определяет объем испарения. На бензине окупаемость будет быстрой, на дизеле проект окупается исключительно безопасностью.
+                        </div>
+                    </div>
+
+                    <!-- Section 4 -->
+                    <div class="p-5 bg-slate-950/60 rounded-xl border border-slate-850 space-y-4">
+                        <div class="flex items-center space-x-2 text-rose-400">
+                            <span class="p-1.5 bg-rose-500/10 rounded-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            </span>
+                            <h4 class="font-bold text-white">Текущее состояние уплотнений</h4>
+                        </div>
+                        <p class="text-xs text-slate-400">Герметичен ли резервуар на данный момент? В каком состоянии находятся крышки люков и фланцы?</p>
+                        <div class="p-3 bg-slate-900/40 rounded-lg text-xs text-slate-500">
+                            <b>Зачем:</b> Бессмысленно подавать азот в негерметичный резервуар. Он будет улетать через зазоры в атмосферу вместе с вашими деньгами.
+                        </div>
+                    </div>
+
+                    <!-- Section 5 -->
+                    <div class="p-5 bg-slate-950/60 rounded-xl border border-slate-850 space-y-4">
+                        <div class="flex items-center space-x-2 text-amber-400">
+                            <span class="p-1.5 bg-amber-500/10 rounded-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </span>
+                            <h4 class="font-bold text-white">Инфраструктура подачи азота</h4>
+                        </div>
+                        <p class="text-xs text-slate-400">Есть ли на объекте источник азота (рампа с баллонами, жидкий азот) или нужно проектировать локальный PSA генератор?</p>
+                        <div class="p-3 bg-slate-900/40 rounded-lg text-xs text-slate-500">
+                            <b>Зачем:</b> Покупной азот в баллонах дорог. Для крупных парков обязательна установка собственной азотной станции.
+                        </div>
+                    </div>
+
+                    <!-- Section 6 -->
+                    <div class="p-5 bg-slate-950/60 rounded-xl border border-slate-850 space-y-4">
+                        <div class="flex items-center space-x-2 text-indigo-400">
+                            <span class="p-1.5 bg-indigo-500/10 rounded-md">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                            </span>
+                            <h4 class="font-bold text-white">Наличие понтона</h4>
+                        </div>
+                        <p class="text-xs text-slate-400">Оборудованы ли РВС внутренними плавающими понтонами на данный момент?</p>
+                        <div class="p-3 bg-slate-900/40 rounded-lg text-xs text-slate-500">
+                            <b>Зачем:</b> Если понтон уже установлен, он снижает испарения на 90%. Азот поверх понтона подается исключительно в целях взрывозащиты.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: CALCULATOR -->
+        <div id="tab-calculator" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Inputs -->
+                <div class="bg-slate-900/50 border border-slate-850 rounded-2xl p-6 lg:p-8 space-y-6">
+                    <h3 class="text-lg font-bold text-white">Параметры вашего объекта</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Хранимый нефтепродукт</label>
+                            <select id="calc-product" onchange="runCalculation()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-emerald-500">
+                                <option value="gasoline">Бензин (Высокое испарение)</option>
+                                <option value="diesel">Дизельное топливо (Низкое испарение)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Объем резервуара (м³)</label>
+                            <input id="calc-volume" type="number" value="5000" oninput="runCalculation()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Оборачиваемость (циклов в год)</label>
+                            <input id="calc-turnover" type="number" value="12" oninput="runCalculation()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Стоимость топлива ($ за тонну)</label>
+                            <input id="calc-price" type="number" value="1100" oninput="runCalculation()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Ориентировочная стоимость системы ($)</label>
+                            <input id="calc-cost" type="number" value="75000" oninput="runCalculation()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+
+                        <!-- NEW: Advanced Controls based on Deep Research -->
+                        <div class="pt-4 border-t border-slate-800 space-y-3">
+                            <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Дополнительные факторы (EPA)</span>
+                            
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input id="calc-has-pontoon" type="checkbox" onchange="runCalculation()" class="rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-emerald-500 h-4 w-4">
+                                <span class="text-xs text-slate-300">Резервуар с понтоном (снижает базовое испарение на 90%)</span>
+                            </label>
+
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                                <input id="calc-has-vru" type="checkbox" onchange="runCalculation()" class="rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-emerald-500 h-4 w-4">
+                                <span class="text-xs text-slate-300">Есть система улавливания паров (VRU / УЛФ)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outputs and Explanations -->
+                <div class="lg:col-span-2 bg-slate-900/30 border border-slate-850 rounded-2xl p-6 lg:p-8 flex flex-col justify-between space-y-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-4">Результат экономического расчета</h3>
+                        
+                        <!-- Warning/Notice Banners -->
+                        <div id="calc-warning-diesel" class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300 hidden mb-6">
+                            Внимание: Для дизельного топлива естественное испарение чрезвычайно мало. Установка азотной подушки на дизель экономически неокупаема только за счет сбережения паров. Внедрение оправдано исключительно требованиями пожарной безопасности и сохранения качества (исключение обводнения и окисления).
+                        </div>
+
+                        <div id="calc-warning-vru" class="p-4 bg-sky-500/10 border border-sky-500/20 rounded-xl text-xs text-sky-300 hidden mb-6">
+                            Информация: Без системы улавливания паров (VRU) рабочие потери при закачке продукта (большие дыхания) не предотвращаются азотом. Система будет экономить только малые (температурные) дыхания (около 40% от общих потерь).
+                        </div>
+
+                        <div id="calc-warning-pontoon" class="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs text-indigo-300 hidden mb-6">
+                            Информация: Наличие внутреннего плавающего понтона уже снизило выбросы на 90%. Дополнительная коммерческая выгода от азотной подушки поверх понтона минимальна.
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="p-5 bg-slate-950/60 rounded-xl border border-slate-850">
+                                <span class="text-xs text-slate-400 font-mono block">Потери без азота (в год):</span>
+                                <span id="out-losses-before" class="text-2xl font-bold text-rose-400 mt-2 block">0 т</span>
+                                <span class="text-[10px] text-slate-500">Естественная убыль фракций</span>
+                            </div>
+
+                            <div class="p-5 bg-slate-950/60 rounded-xl border border-slate-850">
+                                <span class="text-xs text-slate-400 font-mono block">Сэкономлено топлива:</span>
+                                <span id="out-saved" class="text-2xl font-bold text-emerald-400 mt-2 block">0 т</span>
+                                <span class="text-[10px] text-slate-500">С учетом схемы системы</span>
+                            </div>
+
+                            <div class="p-5 bg-slate-950/60 rounded-xl border border-slate-850">
+                                <span class="text-xs text-slate-400 font-mono block">Финансовая выгода:</span>
+                                <span id="out-money" class="text-2xl font-bold text-white mt-2 block">$0</span>
+                                <span class="text-[10px] text-slate-500">В год при текущей цене</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ROI visualization -->
+                    <div class="p-6 bg-slate-950/40 rounded-2xl border border-slate-850 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div>
+                            <span class="text-xs text-slate-400 font-mono uppercase block">Прогнозируемый срок окупаемости</span>
+                            <span id="out-roi" class="text-3xl font-black text-emerald-400 mt-1 block">0.0 года</span>
+                            <p class="text-xs text-slate-400 mt-2">Расчет основан на эмпирической модели потерь EPA AP-42 Chapter 7.</p>
+                        </div>
+                        <div class="w-full md:w-1/2 bg-slate-900 h-4 rounded-full overflow-hidden relative">
+                            <div id="roi-progress" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 50%"></div>
+                        </div>
+                    </div>
+
+                    <div class="text-[11px] text-slate-500">
+                        *Примечание: Данная модель рассчитывает экономию корректно: без VRU улавливаются только малые дыхания (40% потенциала). Понтон снижает исходные потери на 90%. Для дизеля потери рассчитываются по фактическому ДНП.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 7: SAFETY & STANDARDS -->
+        <div id="tab-safety" class="tab-content space-y-6">
+            <div class="bg-slate-900/50 border border-slate-850 rounded-2xl p-6 lg:p-8 space-y-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Стандарты безопасности и нормативная база</h2>
+                <p class="text-slate-300 text-sm">
+                    Азот лишен запаха и цвета. Безопасность персонала и защита резервуара регулируются жесткими международными нормами.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-5 bg-slate-950/40 rounded-xl border border-rose-500/20 space-y-3">
+                        <div class="flex items-center space-x-2 text-rose-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            <h4 class="font-bold text-white">Угроза удушья (OSHA / CSB)</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Органы чувств человека не способны распознать атмосферу с недостатком кислорода. Согласно бюллетеню Химической комиссии США (CSB), утечки азота вблизи люков и дыхательной арматуры на крыше резервуаров представляют смертельную опасность для персонала.
+                        </p>
+                        <div class="p-3 bg-slate-900/60 rounded-lg text-[11px] text-rose-300">
+                            Необходима установка стационарных газоанализаторов кислорода на рабочих площадках резервуарного парка.
+                        </div>
+                    </div>
+
+                    <div class="p-5 bg-slate-950/40 rounded-xl border border-sky-500/20 space-y-3">
+                        <div class="flex items-center space-x-2 text-sky-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            <h4 class="font-bold text-white">Взрывозащита (NFPA 69 / API 2000)</h4>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Стандарт NFPA 69 требует поддерживать концентрацию кислорода ниже предельно допустимой (LOC - Limiting Oxygen Concentration). Для большинства паров бензина LOC составляет около 10-12%. Рекомендуется держать уставку азотной подушки по кислороду не выше 5% для гарантированной взрывобезопасности.
+                        </p>
+                        <div class="p-3 bg-slate-900/60 rounded-lg text-[11px] text-sky-300">
+                            Каждый РВС должен иметь непрерывный автоматический мониторинг содержания кислорода в газовой фазе.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-5 bg-slate-950/40 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-white mb-3 text-sm">Список нормативных документов для проектирования:</h4>
+                    <ul class="text-xs text-slate-400 space-y-2 list-disc list-inside">
+                        <li><b>API Standard 2000</b> - Venting Atmospheric and Low-pressure Storage Tanks (Расчет расходов азота).</li>
+                        <li><b>EPA AP-42 Chapter 7</b> - Organic Liquid Storage Tanks (Методика расчета эмиссии паров).</li>
+                        <li><b>NFPA 69</b> - Standard on Explosion Prevention Systems (Взрывозащита азотом).</li>
+                        <li><b>API RP 500 / 505</b> - Классификация взрывоопасных зон на резервуарах.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-850 bg-slate-950/60 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div>
+                © 2026 Разработано для оценки модернизации существующих резервуаров (РВС).
+            </div>
+            <div class="flex space-x-4">
+                <span class="text-slate-400 font-mono">Стандарты: API 2000 / ISO 28300</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Modal/Dialog Box (Instead of alert) -->
+    <div id="modal-box" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-900 border border-slate-800 max-w-md w-full p-6 rounded-2xl space-y-4">
+            <h4 id="modal-title" class="font-bold text-white text-lg">Уведомление</h4>
+            <p id="modal-body" class="text-sm text-slate-300"></p>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="px-4 py-2 bg-emerald-500 text-white font-medium rounded-lg text-sm hover:bg-emerald-600 transition-colors">Хорошо</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        let myChart = null;
+
+        // Tab switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-emerald-500', 'text-white', 'shadow-lg', 'shadow-emerald-500/10');
+                el.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-850');
+            });
+
+            document.getElementById('tab-' + tabId).classList.add('active');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('bg-emerald-500', 'text-white', 'shadow-lg', 'shadow-emerald-500/10');
+            activeBtn.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-850');
+
+            if (tabId === 'calculator') {
+                runCalculation();
+            }
+            if (tabId === 'products') {
+                initChart();
+            }
+        }
+
+        // Custom Modal Utilities
+        function showModal(title, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerText = text;
+            document.getElementById('modal-box').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-box').classList.add('hidden');
+        }
+
+        // SVG Interactive descriptions
+        const elementData = {
+            valven2: {
+                tag: "PCV-1",
+                title: "Азотный регулирующий клапан (Blanketing Valve)",
+                desc: "Это регулятор давления азотной подушки. Высокоточный пилотный клапан, способный реагировать на малейшие изменения давления (доли миллибар). Как только из резервуара начинают откачивать продукт или падает температура, давление в газовом пространстве снижается. Клапан моментально открывается и подает азот.",
+                param: "Должен обеспечивать пропускную способность, перекрывающую пиковый отпуск продукта из резервуара во избежание деформации крыши."
+            },
+            valvebreath: {
+                tag: "PVRV-1",
+                title: "Дыхательный клапан давления/вакуума (PVRV)",
+                desc: "Предохранительное устройство двойного действия. Если температура возрастает, азотная подушка расширяется. Клапан стравливает излишки газа в атмосферу или в систему улавливания паров при давлении выше 15 мбар. Также он сработает на впуск воздуха, если азотная система откажет при сливе продукта.",
+                param: "Отказ этого клапана представляет критическую опасность. Требует ежегодного обслуживания и проверки на обледенение зимой."
+            },
+            generator: {
+                tag: "N2 Gen",
+                title: "Адсорбционный генератор азота (PSA)",
+                desc: "Автономная установка, извлекающая азот прямо из окружающего воздуха с помощью компрессора и угольных сит. Позволяет не зависеть от привозного азота в баллонах или жидкого азота. Производит газ чистотой до 99.9%.",
+                param: "Требует стабильного энергоснабжения и сухого, очищенного сжатого воздуха на входе."
+            },
+            sensor: {
+                tag: "O2 Sensor",
+                title: "Датчик контроля кислорода",
+                desc: "Непрерывно измеряет концентрацию кислорода в газовой подушке резервуара. Для обеспечения взрывобезопасности уровень кислорода должен поддерживаться ниже 5-8% (в зависимости от типа нефтепродукта).",
+                param: "Если датчик фиксирует рост уровня кислорода, система автоматически увеличивает подачу азота для продувки резервуара."
+            }
+        };
+
+        function showInfo(elementId) {
+            const data = elementData[elementId];
+            if (data) {
+                document.getElementById('info-card-default').classList.add('hidden');
+                
+                const detail = document.getElementById('info-card-detail');
+                detail.classList.remove('hidden');
+                
+                const tagEl = document.getElementById('info-tag');
+                tagEl.innerText = data.tag;
+                if (elementId === 'valvebreath') {
+                    tagEl.className = "text-xs px-2 py-1 rounded font-mono uppercase font-bold bg-rose-500/10 text-rose-400";
+                } else {
+                    tagEl.className = "text-xs px-2 py-1 rounded font-mono uppercase font-bold bg-sky-500/10 text-sky-400";
+                }
+
+                document.getElementById('info-title').innerText = data.title;
+                document.getElementById('info-desc').innerText = data.desc;
+                document.getElementById('info-param').innerText = data.param;
+            }
+        }
+
+        // Chart.js Vapor Pressure Chart
+        function initChart() {
+            const ctx = document.getElementById('vaporPressureChart');
+            if (!ctx) return;
+            
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            // Data approximation for vapor pressure (kPa) vs Temp (C)
+            const temps = [0, 10, 20, 30, 40, 50];
+            const gasolineVP = [25, 38, 55, 75, 95, 120];
+            const jetVP = [0.2, 0.4, 0.8, 1.5, 2.5, 4.0];
+            const dieselVP = [0.02, 0.05, 0.1, 0.2, 0.4, 0.8];
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: temps.map(t => t + '°C'),
+                    datasets: [
+                        {
+                            label: 'Бензин (Gasoline)',
+                            data: gasolineVP,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Керосин (Jet A-1)',
+                            data: jetVP,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            fill: false,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Дизель (Diesel)',
+                            data: dieselVP,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            fill: false,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Давление паров (кПа)',
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: '#334155'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#334155'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Advanced ROI calculator based on EPA AP-42
+        function runCalculation() {
+            const product = document.getElementById('calc-product').value;
+            const volume = parseFloat(document.getElementById('calc-volume').value) || 0;
+            const turnover = parseFloat(document.getElementById('calc-turnover').value) || 0;
+            const price = parseFloat(document.getElementById('calc-price').value) || 0;
+            const systemCost = parseFloat(document.getElementById('calc-cost').value) || 0;
+
+            const hasPontoon = document.getElementById('calc-has-pontoon').checked;
+            const hasVRU = document.getElementById('calc-has-vru').checked;
+
+            // Visibility of warning banners
+            document.getElementById('calc-warning-diesel').classList.toggle('hidden', product !== 'diesel');
+            document.getElementById('calc-warning-vru').classList.toggle('hidden', hasVRU);
+            document.getElementById('calc-warning-pontoon').classList.toggle('hidden', !hasPontoon);
+
+            // Base factor (tons of lost volatile organic compounds per 1000m3 per turnover)
+            let factor = product === 'gasoline' ? 0.15 : 0.001;
+
+            // If pontoon is present, it blocks 90% of basic evaporation
+            if (hasPontoon) {
+                factor = factor * 0.1;
+            }
+
+            const totalVolumeTurned = (volume / 1000) * turnover;
+            const totalLossesBefore = totalVolumeTurned * factor;
+            
+            // Savings calculation:
+            // Without VRU, N2 only controls standing losses (~40% of total losses) and saves ~30% of total
+            // With VRU, N2 blanketing secures closed loop and VRU captures up to 90% of total losses
+            let savingEfficiency = 0.30;
+            if (hasVRU) {
+                savingEfficiency = 0.85;
+            }
+
+            const savedTons = totalLossesBefore * savingEfficiency;
+            const financialSavings = savedTons * price;
+
+            // Outputs
+            document.getElementById('out-losses-before').innerText = totalLossesBefore.toFixed(1) + ' т';
+            document.getElementById('out-saved').innerText = savedTons.toFixed(1) + ' т';
+            document.getElementById('out-money').innerText = '$' + Math.round(financialSavings).toLocaleString();
+
+            const roiYears = financialSavings > 0 ? (systemCost / financialSavings) : 99;
+            const roiEl = document.getElementById('out-roi');
+            const progressEl = document.getElementById('roi-progress');
+
+            if (roiYears >= 99) {
+                roiEl.innerText = 'Нерентабельно';
+                roiEl.className = "text-2xl font-black text-rose-400 mt-1 block";
+                progressEl.style.width = '5%';
+                progressEl.className = "bg-rose-500 h-full rounded-full transition-all duration-500";
+            } else {
+                roiEl.innerText = roiYears.toFixed(1) + ' ' + getYearWord(roiYears);
+                roiEl.className = "text-3xl font-black text-emerald-400 mt-1 block";
+                
+                // Map 0 to 10 years to progress bar
+                let pct = 100 - (roiYears * 10);
+                if (pct < 10) pct = 10;
+                if (pct > 100) pct = 100;
+                progressEl.style.width = pct + '%';
+                progressEl.className = "bg-emerald-500 h-full rounded-full transition-all duration-500";
+            }
+        }
+
+        function getYearWord(years) {
+            const lastDigit = Math.round(years * 10) % 10;
+            if (years >= 11 && years <= 14) return 'лет';
+            if (lastDigit === 1) return 'года';
+            return 'лет';
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            runCalculation();
+            initChart();
+        }
+    </script>
+</body>
+</html>
